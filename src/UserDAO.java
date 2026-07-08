@@ -43,4 +43,39 @@ public class UserDAO {
             return false;
         }
     }
+    public User loginUser(String username, String password) {
+    
+    String loginQuery = "SELECT * FROM Users WHERE username = ? AND password = ?";
+    
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(loginQuery)) {
+        
+        
+        
+        stmt.setString(1, username);
+        stmt.setString(2, password);
+        
+        ResultSet rs = stmt.executeQuery();
+        
+        // if username and password match, rs will have a result
+        if (rs.next()) {
+            //make a new User object and populate it with data from the result set
+            User user = new User();
+            user.setId(rs.getInt("id"));
+            user.setFirstName(rs.getString("first_name")); 
+            user.setLastName(rs.getString("last_name"));
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("password"));
+
+            System.out.println("Login successful! Welcome " + user.getFirstName());
+            return user; //user found and returned
+        }
+        
+    } catch (SQLException e) {
+        System.out.println("Database error during login: " + e.getMessage());
+    }
+    
+    System.out.println("Invalid username or password.");
+    return null; //if no user found, return null or password is incorrect
+}
 }
