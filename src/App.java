@@ -1,44 +1,60 @@
+import java.util.List;
+
 public class App {
     public static void main(String[] args) {
-        System.out.println("Starting SmartChef Transaction Test...");
+        System.out.println("Starting SmartChef Test...");
 
+        // ۱. شبیه‌سازی کاربر لاگین شده با شناسه 1
         User mockUser = new User(1, "rozhin_h", "Rozhin", "Hasadi", "pass");
         UserSession.login(mockUser);
         int currentUserId = UserSession.getCurrentUserId();
 
-        //make a new recipe object for the pizza
-        Recipe pizza = new Recipe(0, currentUserId, "Margherita Pizza", "Dinner", 4, "1. Roll dough. 2. Add tomato sauce and cheese. 3. Bake.", 15);
-
-        //making a list of ingredients for the pizza
-        java.util.List<Ingredient> pizzaIngredients = new java.util.ArrayList<>();
-        
-        Ingredient ing1 = new Ingredient();
-        ing1.setIngredientName("Pizza Dough");
-        ing1.setAmount(1.0);
-        ing1.setUnit("pieces");
-        pizzaIngredients.add(ing1);
-
-        Ingredient ing2 = new Ingredient();
-        ing2.setIngredientName("Tomato Sauce");
-        ing2.setAmount(0.5);
-        ing2.setUnit("cups");
-        pizzaIngredients.add(ing2);
-
-        Ingredient ing3 = new Ingredient();
-        ing3.setIngredientName("Mozzarella Cheese");
-        ing3.setAmount(200.0);
-        ing3.setUnit("grams");
-        pizzaIngredients.add(ing3);
-        // run the transaction test
         RecipeDAO recipeDAO = new RecipeDAO();
-        
-        System.out.println("\n--- Testing Transaction Add ---");
-        boolean success = recipeDAO.addRecipeWithIngredients(pizza, pizzaIngredients);
 
-        if (success) {
-            System.out.println("Transaction Test: PASSED! 🎉");
+        // ۲. گرفتن لیست غذاهای کاربر قبل از حذف
+        System.out.println("\n--- Recipes BEFORE Delete ---");
+        List<Recipe> recipes = recipeDAO.getRecipesByUserId(currentUserId);
+        for (Recipe r : recipes) {
+            System.out.println("ID: " + r.getId() + " | Name: " + r.getRecipeName());
+        }
+
+        // ۳. منطق انتخاب غذا برای حذف
+        if (recipes.isEmpty()) {
+            System.out.println("No recipes found to delete!");
         } else {
-            System.out.println("Transaction Test: FAILED! ❌");
+            int targetRecipeId;
+            String targetName;
+
+            // اگر بیشتر از ۱ غذا داشتیم، غذای دوم (ایندکس 1) را انتخاب کن
+            if (recipes.size() > 1) {
+                Recipe secondRecipe = recipes.get(1); // غذای دوم
+                targetRecipeId = secondRecipe.getId();
+                targetName = secondRecipe.getRecipeName();
+                System.out.println("\nSelecting the second recipe for deletion: " + targetName + " (ID: " + targetRecipeId + ")");
+            } else {
+                // اگر فقط ۱ غذا داشتیم، همان اولی (ایندکس 0) را انتخاب کن
+                Recipe firstRecipe = recipes.get(0); // غذای اول
+                targetRecipeId = firstRecipe.getId();
+                targetName = firstRecipe.getRecipeName();
+                System.out.println("\nOnly one recipe found. Selecting it for deletion: " + targetName + " (ID: " + targetRecipeId + ")");
+            }
+
+            // ۴. اجرای متد حذف
+            System.out.println("Deleting...");
+            boolean deleteSuccess = recipeDAO.deleteRecipe(targetRecipeId);
+
+            if (deleteSuccess) {
+                System.out.println("Delete Test: PASSED! 🎉");
+            } else {
+                System.out.println("Delete Test: FAILED! ❌");
+            }
+        }
+
+        // ۵. گرفتن لیست غذاها بعد از حذف برای اطمینان از پاک شدن آن
+        System.out.println("\n--- Recipes AFTER Delete ---");
+        List<Recipe> recipesAfter = recipeDAO.getRecipesByUserId(currentUserId);
+        for (Recipe r : recipesAfter) {
+            System.out.println("ID: " + r.getId() + " | Name: " + r.getRecipeName());
         }
     }
 }
