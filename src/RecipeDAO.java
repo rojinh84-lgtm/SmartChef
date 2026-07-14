@@ -186,4 +186,33 @@ public boolean deleteRecipe(int recipeId) {
         }
     }
 }
+public boolean updateRecipe(Recipe recipe) {
+    String updateQuery = "UPDATE Recipes SET recipe_name = ?, category = ?, servings = ?, instructions = ?, preparation_time = ? WHERE id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(updateQuery)) {
+
+        //using encapsulation to set the values for the update query
+        stmt.setString(1, recipe.getRecipeName());
+        stmt.setString(2, recipe.getCategory());
+        stmt.setInt(3, recipe.getServing());
+        stmt.setString(4, recipe.getInstructions());
+        stmt.setInt(5, recipe.getPreparationTime());
+        stmt.setInt(6, recipe.getId()); //getting the recipe id to know wich recipe needs to change
+
+        int rowsAffected = stmt.executeUpdate();
+        
+        if (rowsAffected > 0) {
+            System.out.println("Recipe updated successfully in database!");
+            return true;
+        } else {
+            System.out.println("No recipe found with ID: " + recipe.getId());
+            return false;
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Database error while updating recipe: " + e.getMessage());
+        return false;
+    }
+}
 }
