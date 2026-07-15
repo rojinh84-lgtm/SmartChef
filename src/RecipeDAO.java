@@ -131,7 +131,7 @@ public class RecipeDAO {
     }
 }
 public boolean deleteRecipe(int recipeId) {
-    // دو تا کوئری جداگانه برای حذف مواد اولیه و حذف خود غذا
+    
     String deleteIngredientsQuery = "DELETE FROM Ingredients WHERE recipe_id = ?";
     String deleteRecipeQuery = "DELETE FROM Recipes WHERE id = ?";
 
@@ -214,5 +214,65 @@ public boolean updateRecipe(Recipe recipe) {
         System.out.println("Database error while updating recipe: " + e.getMessage());
         return false;
     }
+}
+public List<Recipe> searchRecipesByName(String keyword, int userId) {
+    List<Recipe> resultList = new ArrayList<>();
+    //for searching in whole text, we use the LIKE operator in SQL, which allows us to search for a specified pattern in a column. The % symbol is a wildcard that represents zero or more characters. By placing it before and after the keyword, we can find any recipe names that contain the keyword anywhere within them.
+    String searchQuery = "SELECT * FROM Recipes WHERE recipe_name LIKE ? AND user_id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(searchQuery)) {
+
+        //% this character is start and end of the keyword, so it will search for any recipe names that contain the keyword anywhere within them.
+        stmt.setString(1, "%" + keyword + "%");
+        stmt.setInt(2, userId);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Recipe r = new Recipe(
+                    rs.getInt("id"),
+                    rs.getInt("user_id"),
+                    rs.getString("recipe_name"),
+                    rs.getString("category"),
+                    rs.getInt("servings"),
+                    rs.getString("instructions"),
+                    rs.getInt("preparation_time")
+                );
+                resultList.add(r);
+            }
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Database error during search: " + e.getMessage());
+    }
+    return resultList;
+}
+public List<Recipe> searchRecipesByCategory(String categoryKeyword, int userId) {
+    List<Recipe> resultList = new ArrayList<>();
+    String searchQuery ="SELECT * FROM Recipes WHERE category LIKE ? AND user_id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(searchQuery)) {
+        stmt.setString(1, "%" + categoryKeyword + "%");
+        stmt.setInt(2, userId);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Recipe r = new Recipe(
+                    rs.getInt("id"),
+                    rs.getInt("user_id"),
+                    rs.getString("recipe_name"),
+                    rs.getString("category"),
+                    rs.getInt("servings"),
+                    rs.getString("instructions"),
+                    rs.getInt("preparation_time")
+                );
+                resultList.add(r);
+            }
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Database error during category search: " + e.getMessage());
+    }
+    return resultList;
 }
 }

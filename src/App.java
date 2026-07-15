@@ -1,8 +1,7 @@
 import java.util.List;
-
 public class App {
     public static void main(String[] args) {
-        System.out.println("Starting SmartChef Update Test...");
+        System.out.println("Starting SmartChef Category Search Test...");
 
         // ۱. شبیه‌سازی کاربر لاگین شده با شناسه 1
         User mockUser = new User(1, "rozhin_h", "Rozhin", "Hasadi", "pass");
@@ -11,45 +10,32 @@ public class App {
 
         RecipeDAO recipeDAO = new RecipeDAO();
 
-        // ۲. گرفتن لیست غذاها برای پیدا کردن یک غذا جهت ویرایش
-        List<Recipe> recipes = recipeDAO.getRecipesByUserId(currentUserId);
+        // ۲. تست اول: جستجو در دسته‌بندی‌هایی که شامل کلمه "din" هستند (Dinner)
+        String testCategory1 = "din";
+        System.out.println("\n--- Testing Category Search for: '" + testCategory1 + "' ---");
+        List<Recipe> result1 = recipeDAO.searchRecipesByCategory(testCategory1, currentUserId);
         
-        if (recipes.isEmpty()) {
-            System.out.println("No recipes found to update!");
+        if (result1.isEmpty()) {
+            System.out.println("No recipes found in category containing: " + testCategory1);
         } else {
-            // ۳. انتخاب اولین غذای لیست به عنوان یک شیء
-            Recipe recipeToUpdate = recipes.get(0);
-            
-            System.out.println("\n--- Recipe BEFORE Update ---");
-            System.out.println("ID: " + recipeToUpdate.getId());
-            System.out.println("Name: " + recipeToUpdate.getRecipeName());
-            System.out.println("Prep Time: " + recipeToUpdate.getPreparationTime() + " mins");
-            System.out.println("Instructions: " + recipeToUpdate.getInstructions());
-
-            // ۴. تغییر ویژگی‌های شیء با استفاده از Setterها (منطق شی‌گرایی)
-            System.out.println("\nModifying the recipe object in Java...");
-            recipeToUpdate.setRecipeName(recipeToUpdate.getRecipeName() + " (Spicy Version)");
-            recipeToUpdate.setPreparationTime(recipeToUpdate.getPreparationTime() + 5); // ۵ دقیقه اضافه می‌کنیم
-            recipeToUpdate.setInstructions(recipeToUpdate.getInstructions() + " Add chili flakes at the end.");
-
-            // ۵. فرستادن کل شیء تغییر یافته به دیتابیس برای ذخیره نهایی
-            System.out.println("Sending updated object to database...");
-            boolean updateSuccess = recipeDAO.updateRecipe(recipeToUpdate);
-
-            if (updateSuccess) {
-                System.out.println("Update Test: PASSED! 🎉");
-            } else {
-                System.out.println("Update Test: FAILED! ❌");
+            System.out.println("Found " + result1.size() + " recipe(s) in this category:");
+            for (Recipe r : result1) {
+                System.out.println("- ID: " + r.getId() + " | Name: " + r.getRecipeName() + " | Category: " + r.getCategory());
             }
+        }
 
-            // ۶. چک کردن نتیجه نهایی با گرفتن دوباره اطلاعات از دیتابیس
-            System.out.println("\n--- Recipe AFTER Update (Verified from DB) ---");
-            List<Recipe> updatedRecipes = recipeDAO.getRecipesByUserId(currentUserId);
-            Recipe verifiedRecipe = updatedRecipes.get(0); // دوباره اولین غذا را نگاه میکنیم
-            System.out.println("ID: " + verifiedRecipe.getId());
-            System.out.println("Name: " + verifiedRecipe.getRecipeName());
-            System.out.println("Prep Time: " + verifiedRecipe.getPreparationTime() + " mins");
-            System.out.println("Instructions: " + verifiedRecipe.getInstructions());
+        // ۳. تست دوم: جستجوی یک دسته‌بندی که نداریم (Lunch)
+        String testCategory2 = "Lunch";
+        System.out.println("\n--- Testing Category Search for: '" + testCategory2 + "' ---");
+        List<Recipe> result2 = recipeDAO.searchRecipesByCategory(testCategory2, currentUserId);
+        
+        if (result2.isEmpty()) {
+            System.out.println("No recipes found in category containing: " + testCategory2 + " (This is correct!)");
+        } else {
+            System.out.println("Found " + result2.size() + " recipe(s):");
+            for (Recipe r : result2) {
+                System.out.println("- Name: " + r.getRecipeName());
+            }
         }
     }
 }
