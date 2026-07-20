@@ -2,9 +2,8 @@ import java.util.List;
 
 public class App {
     public static void main(String[] args) {
-        System.out.println("Starting SmartChef Add Meal Plan Test...");
+        System.out.println("Starting SmartChef Update & Delete Meal Plan Test...");
 
-       
         User mockUser = new User(1, "rozhin_h", "Rozhin", "Hasadi", "pass");
         UserSession.login(mockUser);
         int currentUserId = UserSession.getCurrentUserId();
@@ -12,28 +11,33 @@ public class App {
         RecipeDAO recipeDAO = new RecipeDAO();
         MealPlanDAO mealPlanDAO = new MealPlanDAO();
 
-        // get recipes for the current user
         List<Recipe> recipes = recipeDAO.getRecipesByUserId(currentUserId);
 
-        if (recipes.isEmpty()) {
-            System.out.println("No recipes found to add to meal plan!");
-        } else {
-            
-            Recipe selectedRecipe = recipes.get(0);
+        if (recipes.size() >= 2) {
+            Recipe secondRecipe = recipes.get(1); // انتخاب پیتزا
 
-            // creating a new meal plan for Monday Dinner with the selected recipe
-            MealPlan newPlan = new MealPlan(0, currentUserId, selectedRecipe.getId(), "Monday", "Dinner");
+            // ۱. تست ویرایش: تغییر وعده شماره 1 به پیتزا برای روز Tuesday
+            MealPlan planToUpdate = new MealPlan(1, currentUserId, secondRecipe.getId(), "Tuesday", "Dinner");
+            System.out.println("\nTesting UPDATE on Meal Plan ID: 1...");
+            boolean isUpdated = mealPlanDAO.addMealPlan(planToUpdate);
 
-            System.out.println("\nAdding meal plan: " + selectedRecipe.getRecipeName() + " for Monday Dinner...");
-            
-            //add to database
-            boolean isAdded = mealPlanDAO.addMealPlan(newPlan);
-
-            if (isAdded) {
-                System.out.println("Test PASSED! Generated MealPlan ID: " + newPlan.getId());
+            if (isUpdated) {
+                System.out.println("Update Test PASSED! 🎉");
             } else {
-                System.out.println("Test FAILED! Could not add meal plan.");
+                System.out.println("Update Test FAILED! ❌");
             }
+
+            // ۲. تست حذف: پاک کردن وعده شماره 1
+            System.out.println("\nTesting DELETE on Meal Plan ID: 1...");
+            boolean isDeleted = mealPlanDAO.deleteMealPlan(1, currentUserId);
+
+            if (isDeleted) {
+                System.out.println("Delete Test PASSED! 🎉");
+            } else {
+                System.out.println("Delete Test FAILED! ❌");
+            }
+        } else {
+            System.out.println("Need at least 2 recipes in DB for this test!");
         }
     }
 }

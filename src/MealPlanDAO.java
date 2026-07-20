@@ -31,4 +31,25 @@ public class MealPlanDAO {
         }
         return false;
     }
+
+    public boolean deleteMealPlan(int mealPlanId, int userId) {
+    String deleteQuery = "DELETE FROM MealPlans WHERE id = ? AND user_id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(deleteQuery)) {
+
+        stmt.setInt(1, mealPlanId);
+        stmt.setInt(2, userId);
+
+        int rowsAffected = stmt.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("Meal plan deleted successfully! 🗑️");
+            return true;
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Database error while deleting meal plan: " + e.getMessage());
+    }
+    return false;
+}
 }
