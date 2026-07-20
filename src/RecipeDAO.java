@@ -103,7 +103,7 @@ public class RecipeDAO {
 
         // if all of the code above runs successfully, we can commit the transaction
         conn.commit();
-        System.out.println("Recipe and all ingredients saved successfully using Transaction! 💎");
+        System.out.println("Recipe and all ingredients saved successfully using Transaction!");
         return true;
 
     } catch (SQLException e) {
@@ -272,6 +272,41 @@ public List<Recipe> searchRecipesByCategory(String categoryKeyword, int userId) 
 
     } catch (SQLException e) {
         System.out.println("Database error during category search: " + e.getMessage());
+    }
+    return resultList;
+}
+public List<Recipe> searchRecipesByIngredient(String ingredientKeyword, int userId) {
+    List<Recipe> resultList = new ArrayList<>();
+    
+    // for find recipes based on ingredients, we need to join the Recipes table with the Ingredients table. This way, we can search for recipes that contain a specific ingredient. The DISTINCT keyword ensures that we don't get duplicate recipes if they have multiple matching ingredients.
+    String searchQuery = "SELECT DISTINCT r.* FROM Recipes r " +
+                          "JOIN Ingredients i ON r.id = i.recipe_id " +
+                          "WHERE i.ingredient_name LIKE ? AND r.user_id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(searchQuery)) {
+
+        
+        stmt.setString(1, "%" + ingredientKeyword + "%");
+        stmt.setInt(2, userId);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Recipe r = new Recipe(
+                    rs.getInt("id"),
+                    rs.getInt("user_id"),
+                    rs.getString("recipe_name"),
+                    rs.getString("category"),
+                    rs.getInt("servings"),
+                    rs.getString("instructions"),
+                    rs.getInt("preparation_time")
+                );
+                resultList.add(r);
+            }
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Database error during ingredient search: " + e.getMessage());
     }
     return resultList;
 }
