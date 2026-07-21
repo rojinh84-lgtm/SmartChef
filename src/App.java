@@ -2,35 +2,26 @@ import java.util.List;
 
 public class App {
     public static void main(String[] args) {
-        System.out.println("Starting SmartChef Copy Weekly Plan Test...");
+        System.out.println("Starting SmartChef Shopping List Aggregation Test...");
 
+        // شبیه‌سازی لاگین
         User mockUser = new User(1, "rozhin_h", "Rozhin", "Hasadi", "pass");
         UserSession.login(mockUser);
         int currentUserId = UserSession.getCurrentUserId();
 
-        MealPlanDAO mealPlanDAO = new MealPlanDAO();
+        ShoppingListService shoppingListService = new ShoppingListService();
 
-        // ۱. گرفتن تعداد برنامه‌های فعلی قبل از کپی
-        List<MealPlan> beforeCopy = mealPlanDAO.getWeeklyMealPlan(currentUserId);
-        System.out.println("Meal plans count before copy: " + beforeCopy.size());
+        System.out.println("\nGenerating your smart shopping list for the week... 🛒\n");
+        List<Ingredient> shoppingList = shoppingListService.generateWeeklyShoppingList(currentUserId);
 
-        // ۲. اجرای عملیات کپی کردن برنامه هفته
-        System.out.println("\n--- Copying Weekly Plan ---");
-        boolean isCopied = mealPlanDAO.copyWeeklyPlan(currentUserId);
-
-        // ۳. بررسی و چاپ برنامه جدید پس از کپی
-        if (isCopied) {
-            List<MealPlan> afterCopy = mealPlanDAO.getWeeklyMealPlan(currentUserId);
-            System.out.println("\nMeal plans count after copy: " + afterCopy.size());
-            
-            System.out.println("\n================ UPDATED MEAL PLAN LIST ================");
-            for (MealPlan plan : afterCopy) {
-                System.out.println("🗓️  " + plan.getDayOfWeek() + " | " + plan.getMealType() + 
-                                   " -> " + plan.getRecipeName() + " (Plan ID: " + plan.getId() + ")");
-            }
-            System.out.println("=======================================================");
+        if (shoppingList.isEmpty()) {
+            System.out.println("Your meal plan is empty or recipes have no ingredients!");
         } else {
-            System.out.println("Failed to copy meal plan! ❌");
+            System.out.println("================ YOUR SMART SHOPPING LIST ================");
+            for (Ingredient ing : shoppingList) {
+                System.out.println("🔸 " + ing.getIngredientName() + " : " + ing.getAmount() + " " + ing.getUnit());
+            }
+            System.out.println("==========================================================");
         }
     }
 }

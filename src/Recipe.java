@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class Recipe {
     private int id;
     private int userId;
@@ -6,6 +8,7 @@ public class Recipe {
     private int serving;
     private String instructions;
     private int preparationTime;
+    private List<Ingredient> ingredients;
 
     public Recipe(){
         //default
@@ -61,5 +64,12 @@ public class Recipe {
     public void setPreparationTime(int preparationTime){
         this.preparationTime = preparationTime;
     }
+    public List<Ingredient> getIngredients() { 
+    return ingredients; 
+}
+
+public void setIngredients(List<Ingredient> ingredients) { 
+    this.ingredients = ingredients; 
+}
 }   
 

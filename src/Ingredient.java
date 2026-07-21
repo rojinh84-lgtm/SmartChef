@@ -43,4 +43,11 @@ public class Ingredient {
     public void setUnit(String unit) {
         this.unit = unit;
     }
+    public String getName() {
+        return ingredientName;
+    }
+    public void setName(String name) {
+        this.ingredientName = name;
+        throw new UnsupportedOperationException("Unimplemented method 'setName'");
+    }
 }

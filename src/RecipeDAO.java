@@ -310,4 +310,50 @@ public List<Recipe> searchRecipesByIngredient(String ingredientKeyword, int user
     }
     return resultList;
 }
+// متد جدید برای دریافت یک دستورپخت به همراه لیست مواد اولیه آن
+    public Recipe getRecipeById(int recipeId) {
+        Recipe recipe = null;
+        String recipeQuery = "SELECT * FROM Recipes WHERE id = ?";
+        String ingredientQuery = "SELECT * FROM Ingredients WHERE recipe_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement recipeStmt = conn.prepareStatement(recipeQuery)) {
+
+            recipeStmt.setInt(1, recipeId);
+
+            try (ResultSet rs = recipeStmt.executeQuery()) {
+                if (rs.next()) {
+                    recipe = new Recipe();
+                    recipe.setId(rs.getInt("id"));
+                    recipe.setUserId(rs.getInt("user_id"));
+                    recipe.setRecipeName(rs.getString("recipe_name"));
+                    recipe.setCategory(rs.getString("category"));
+                    recipe.setServing(rs.getInt("servings"));
+                    recipe.setInstructions(rs.getString("instructions"));
+                    recipe.setPreparationTime(rs.getInt("preparation_time"));
+
+                    // خواندن لیست مواد اولیه مرتبط با این غذا از جدول Ingredients
+                    List<Ingredient> ingredients = new ArrayList<>();
+                    try (PreparedStatement ingStmt = conn.prepareStatement(ingredientQuery)) {
+                        ingStmt.setInt(1, recipeId);
+                        try (ResultSet ingRs = ingStmt.executeQuery()) {
+                            while (ingRs.next()) {
+                                Ingredient ing = new Ingredient();
+                                // تنظیم مقادیر طبق متدهای کلاس Ingredient شما
+                                ing.setIngredientName(ingRs.getString("ingredient_name"));
+                                ing.setAmount(ingRs.getDouble("amount"));
+                                ing.setUnit(ingRs.getString("unit"));
+                                ingredients.add(ing);
+                            }
+                        }
+                    }
+                    // اتصال مواد اولیه به دستورپخت
+                    recipe.setIngredients(ingredients);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Database error while fetching recipe by ID: " + e.getMessage());
+        }
+        return recipe;
+    }
 }
