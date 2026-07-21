@@ -4,16 +4,17 @@ public class MealPlan {
     private int recipeId;
     private String dayOfWeek;
     private String mealType;
+    private String recipeName;
     
     public MealPlan(){
         //default (if you want to create an object without setting any values)
     }
-    public MealPlan(int id, int userId, int recipeId, String dayOfWeek, String mealType){
-        this.id = id;
-        this.userId = userId;
-        this.recipeId = recipeId;
-        this.dayOfWeek = dayOfWeek;
-        this.mealType = mealType;
+    public MealPlan(int id, int userId, int recipeId, String dayOfWeek, String mealType) {
+    this.id = id;
+    this.userId = userId;
+    this.recipeId = recipeId;
+    this.dayOfWeek = dayOfWeek;
+    this.mealType = mealType;
     }
     public int getId() {
         return id;  }
@@ -43,4 +44,9 @@ public class MealPlan {
     public void setMealType(String mealType) {
         this.mealType = mealType;
     }
+    public String getRecipeName() {
+        return recipeName;
+    }
+    public void setRecipeName(String recipeName) {
+        this.recipeName = recipeName;  }
 }

@@ -52,4 +52,69 @@ public class MealPlanDAO {
     }
     return false;
 }
+public List<MealPlan> getWeeklyMealPlan(int userId) {
+    List<MealPlan> weeklyPlan = new ArrayList<>();
+    
+    // کوئری JOIN برای خواندن برنامه‌ها به همراه اسم غذا از جدول Recipes
+    String query = "SELECT mp.id, mp.user_id, mp.recipe_id, mp.day_of_week, mp.meal_type, r.recipe_name " +
+                   "FROM MealPlans mp " +
+                   "JOIN Recipes r ON mp.recipe_id = r.id " +
+                   "WHERE mp.user_id = ? " +
+                   "ORDER BY FIELD(mp.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+
+        stmt.setInt(1, userId);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                MealPlan plan = new MealPlan();
+                plan.setId(rs.getInt("id"));
+                plan.setUserId(rs.getInt("user_id"));
+                plan.setRecipeId(rs.getInt("recipe_id"));
+                plan.setRecipeName(rs.getString("recipe_name"));
+                plan.setDayOfWeek(rs.getString("day_of_week"));
+                plan.setMealType(rs.getString("meal_type"));
+
+                weeklyPlan.add(plan);
+            }
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Database error while fetching weekly meal plan: " + e.getMessage());
+    }
+    return weeklyPlan;
+}
+public boolean copyWeeklyPlan(int userId) {
+    // ۱. گرفتن تمام برنامه‌های موجود کاربر
+    List<MealPlan> currentPlans = getWeeklyMealPlan(userId);
+
+    if (currentPlans.isEmpty()) {
+        System.out.println("No meal plans to copy!");
+        return false;
+    }
+
+    boolean allCopied = true;
+
+    // ۲. تکرار و ثبت مجدد هر وعده در دیتابیس
+    for (MealPlan plan : currentPlans) {
+       MealPlan newPlan = new MealPlan();
+    newPlan.setUserId(userId);
+    newPlan.setRecipeId(plan.getRecipeId());
+    newPlan.setDayOfWeek(plan.getDayOfWeek());
+    newPlan.setMealType(plan.getMealType());
+        
+
+        boolean success = addMealPlan(newPlan);
+        if (!success) {
+            allCopied = false;
+        }
+    }
+
+    if (allCopied) {
+        System.out.println("Weekly plan copied successfully! 📋✨");
+    }
+    return allCopied;
+}
 }
