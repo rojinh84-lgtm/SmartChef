@@ -84,4 +84,27 @@ public class ShoppingListDAO {
         }
         return false;
     }
+    //add a method to delete an item from the shopping list
+    public boolean deleteItemFromList(int userId, String ingredientName) {
+        String deleteQuery = "DELETE FROM ShoppingListItems WHERE user_id = ? AND ingredient_name = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(deleteQuery)) {
+            stmt.setInt(1, userId);
+            stmt.setString(2, ingredientName);
+
+            //delete the item from the shopping list
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Item '" + ingredientName + "' successfully removed from the shopping list. 🗑️");
+                return true;
+            } else {
+                System.out.println("Item '" + ingredientName + "' not found in your shopping list.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Database error while deleting item: " + e.getMessage());
+        }
+        return false;
+    }
 }
