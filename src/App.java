@@ -1,21 +1,20 @@
 public class App {
     public static void main(String[] args) {
-        System.out.println("--- Testing Daily Nutrition Calculator ---");
+        System.out.println("--- Testing Weekly Nutrition Calculator ---");
 
         // ۱. معرفی کاربر و ابزار
         int currentUserId = 1;
-        String targetDay = "Monday"; // روزی که می‌خواهیم کالری‌اش را حساب کنیم
         NutritionDAO nutritionDAO = new NutritionDAO();
 
-        // ۲. فراخوانی متد محاسبه از دیتابیس
-        Nutrition dailyTotals = nutritionDAO.getDailyNutritionSum(currentUserId, targetDay);
+        // ۲. فراخوانی متد محاسبه کل هفته
+        Nutrition weeklyTotals = nutritionDAO.getWeeklyNutritionSum(currentUserId);
 
         // ۳. چاپ گزارش نهایی
-        System.out.println("\n📊 Nutrition Report for " + targetDay + " 📊");
-        System.out.println("🔥 Calories: " + dailyTotals.getCalories() + " kcal");
-        System.out.println("🥩 Protein:  " + dailyTotals.getProtein() + " g");
-        System.out.println("🍞 Carbs:    " + dailyTotals.getCarbs() + " g");
-        System.out.println("🥑 Fat:      " + dailyTotals.getFat() + " g");
-        System.out.println("---------------------------------------");
+        System.out.println("\n📊 Total Nutrition Report for the WHOLE WEEK 📊");
+        System.out.println("🔥 Calories: " + weeklyTotals.getCalories() + " kcal");
+        System.out.println("🥩 Protein:  " + weeklyTotals.getProtein() + " g");
+        System.out.println("🍞 Carbs:    " + weeklyTotals.getCarbs() + " g");
+        System.out.println("🥑 Fat:      " + weeklyTotals.getFat() + " g");
+        System.out.println("---------------------------------------------");
     }
 }

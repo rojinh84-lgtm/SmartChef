@@ -92,4 +92,33 @@ public class NutritionDAO {
         
         return dailyTotals;
     }
+    // method to get the total nutrition for a user for the entire week
+    public Nutrition getWeeklyNutritionSum(int userId) {
+        
+        Nutrition weeklyTotals = new Nutrition();
+        weeklyTotals.setCalories(0);
+        weeklyTotals.setProtein(0);
+        weeklyTotals.setCarbs(0);
+        weeklyTotals.setFat(0);
+
+        //to get the meal plans for the user(for the whole week)
+        MealPlanDAO mealPlanDAO = new MealPlanDAO();
+        java.util.List<MealPlan> weeklyPlans = mealPlanDAO.getWeeklyMealPlan(userId);
+
+        // moving through each meal plan and summing up the nutrition values for the week
+        for (MealPlan plan : weeklyPlans) {
+
+            Nutrition info = getNutritionByRecipeId(plan.getRecipeId());
+            
+            //summing up
+            if (info != null) {
+                weeklyTotals.setCalories(weeklyTotals.getCalories() + info.getCalories());
+                weeklyTotals.setProtein(weeklyTotals.getProtein() + info.getProtein());
+                weeklyTotals.setCarbs(weeklyTotals.getCarbs() + info.getCarbs());
+                weeklyTotals.setFat(weeklyTotals.getFat() + info.getFat());
+            }
+        }
+        
+        return weeklyTotals;
+    }
 }
