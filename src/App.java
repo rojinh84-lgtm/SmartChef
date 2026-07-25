@@ -1,21 +1,21 @@
 public class App {
     public static void main(String[] args) {
-        // معرفی پیش‌نیازها
-        int currentUserId = 1; 
-        ShoppingListDAO shoppingListDAO = new ShoppingListDAO();
+        System.out.println("--- Testing Daily Nutrition Calculator ---");
 
-        // اجرای تست حذف آیتم
-        System.out.println("\n--- Testing Delete Item from Shopping List ---");
+        // ۱. معرفی کاربر و ابزار
+        int currentUserId = 1;
+        String targetDay = "Monday"; // روزی که می‌خواهیم کالری‌اش را حساب کنیم
+        NutritionDAO nutritionDAO = new NutritionDAO();
 
-        //
-        String itemToDelete = "Tomato Sauce";
-        boolean isDeleted = shoppingListDAO.deleteItemFromList(currentUserId, itemToDelete);
+        // ۲. فراخوانی متد محاسبه از دیتابیس
+        Nutrition dailyTotals = nutritionDAO.getDailyNutritionSum(currentUserId, targetDay);
 
-        //checking
-        if (isDeleted) {
-            System.out.println("Test PASSED! The item was successfully deleted.");
-        } else {
-            System.out.println("Test FAILED! Could not delete the item.");
-        }
+        // ۳. چاپ گزارش نهایی
+        System.out.println("\n📊 Nutrition Report for " + targetDay + " 📊");
+        System.out.println("🔥 Calories: " + dailyTotals.getCalories() + " kcal");
+        System.out.println("🥩 Protein:  " + dailyTotals.getProtein() + " g");
+        System.out.println("🍞 Carbs:    " + dailyTotals.getCarbs() + " g");
+        System.out.println("🥑 Fat:      " + dailyTotals.getFat() + " g");
+        System.out.println("---------------------------------------");
     }
 }
