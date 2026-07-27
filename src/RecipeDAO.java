@@ -310,7 +310,7 @@ public List<Recipe> searchRecipesByIngredient(String ingredientKeyword, int user
     }
     return resultList;
 }
-// متد جدید برای دریافت یک دستورپخت به همراه لیست مواد اولیه آن
+// this method will return a recipe object with all its details, including the list of ingredients associated with it. if the recipe is not found, it will return null.
     public Recipe getRecipeById(int recipeId) {
         Recipe recipe = null;
         String recipeQuery = "SELECT * FROM Recipes WHERE id = ?";
@@ -332,14 +332,14 @@ public List<Recipe> searchRecipesByIngredient(String ingredientKeyword, int user
                     recipe.setInstructions(rs.getString("instructions"));
                     recipe.setPreparationTime(rs.getInt("preparation_time"));
 
-                    // خواندن لیست مواد اولیه مرتبط با این غذا از جدول Ingredients
+                    // fetch the list of ingredients associated with this recipe
                     List<Ingredient> ingredients = new ArrayList<>();
                     try (PreparedStatement ingStmt = conn.prepareStatement(ingredientQuery)) {
                         ingStmt.setInt(1, recipeId);
                         try (ResultSet ingRs = ingStmt.executeQuery()) {
                             while (ingRs.next()) {
                                 Ingredient ing = new Ingredient();
-                                // تنظیم مقادیر طبق متدهای کلاس Ingredient شما
+                                // set the properties of the ingredient object based on the result set
                                 ing.setIngredientName(ingRs.getString("ingredient_name"));
                                 ing.setAmount(ingRs.getDouble("amount"));
                                 ing.setUnit(ingRs.getString("unit"));
@@ -347,7 +347,6 @@ public List<Recipe> searchRecipesByIngredient(String ingredientKeyword, int user
                             }
                         }
                     }
-                    // اتصال مواد اولیه به دستورپخت
                     recipe.setIngredients(ingredients);
                 }
             }
@@ -355,5 +354,32 @@ public List<Recipe> searchRecipesByIngredient(String ingredientKeyword, int user
             System.out.println("Database error while fetching recipe by ID: " + e.getMessage());
         }
         return recipe;
+    }
+    // this method will return a list of recipes based on the specified dietary restrictions
+    public List<Recipe> getFilteredRecipes(boolean vegetarian, boolean glutenFree, boolean lactoseFree) {
+        List<Recipe> filteredList = new ArrayList<>();
+        // ساخت کوئری پایه
+        StringBuilder query = new StringBuilder("SELECT * FROM Recipes WHERE 1=1 ");
+
+        //add conditions based on the dietary restrictions
+        if (vegetarian) query.append("AND is_vegetarian = TRUE ");
+        if (glutenFree) query.append("AND is_gluten_free = TRUE ");
+        if (lactoseFree) query.append("AND is_lactose_free = TRUE ");
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query.toString());
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Recipe recipe = new Recipe();
+                recipe.setId(rs.getInt("id"));
+                recipe.setRecipeName(rs.getString("recipe_name"));
+                // set other properties as needed
+                filteredList.add(recipe);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error filtering recipes: " + e.getMessage());
+        }
+        return filteredList;
     }
 }

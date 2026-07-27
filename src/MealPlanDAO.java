@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 public class MealPlanDAO {
     public boolean addMealPlan(MealPlan mealPlan) {
         String insertQuery = "INSERT INTO MealPlans (user_id, recipe_id, day_of_week, meal_type) VALUES (?, ?, ?, ?)";
@@ -55,7 +56,7 @@ public class MealPlanDAO {
 public List<MealPlan> getWeeklyMealPlan(int userId) {
     List<MealPlan> weeklyPlan = new ArrayList<>();
     
-    // کوئری JOIN برای خواندن برنامه‌ها به همراه اسم غذا از جدول Recipes
+    // use JOIN to fetch recipe names along with meal plans
     String query = "SELECT mp.id, mp.user_id, mp.recipe_id, mp.day_of_week, mp.meal_type, r.recipe_name " +
                    "FROM MealPlans mp " +
                    "JOIN Recipes r ON mp.recipe_id = r.id " +
@@ -86,8 +87,9 @@ public List<MealPlan> getWeeklyMealPlan(int userId) {
     }
     return weeklyPlan;
 }
+
 public boolean copyWeeklyPlan(int userId) {
-    // ۱. گرفتن تمام برنامه‌های موجود کاربر
+    //get all current meal plans for the user
     List<MealPlan> currentPlans = getWeeklyMealPlan(userId);
 
     if (currentPlans.isEmpty()) {
@@ -97,24 +99,60 @@ public boolean copyWeeklyPlan(int userId) {
 
     boolean allCopied = true;
 
-    // ۲. تکرار و ثبت مجدد هر وعده در دیتابیس
+    //repeat the current plans for the next week
     for (MealPlan plan : currentPlans) {
        MealPlan newPlan = new MealPlan();
-    newPlan.setUserId(userId);
-    newPlan.setRecipeId(plan.getRecipeId());
-    newPlan.setDayOfWeek(plan.getDayOfWeek());
-    newPlan.setMealType(plan.getMealType());
-        
+           newPlan.setUserId(userId);
+           newPlan.setRecipeId(plan.getRecipeId());
+           newPlan.setDayOfWeek(plan.getDayOfWeek());
+           newPlan.setMealType(plan.getMealType());
+            
 
-        boolean success = addMealPlan(newPlan);
-        if (!success) {
-            allCopied = false;
+            boolean success = addMealPlan(newPlan);
+            if (!success) {
+                allCopied = false;
+            }
         }
-    }
 
     if (allCopied) {
         System.out.println("Weekly plan copied successfully! 📋✨");
     }
     return allCopied;
 }
+public boolean generateAutoWeeklyPlan(int userId) {
+        String[] daysOfWeek = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        
+        RecipeDAO recipeDAO = new RecipeDAO();
+        List<Recipe> allRecipes = recipeDAO.getRecipesByUserId(userId); 
+        
+        if (allRecipes.isEmpty()) {
+            System.out.println("No recipes available to generate a plan! ❌");
+            return false;
+        }
+
+        Random random = new Random();
+        boolean allSuccess = true;
+
+        System.out.println("Generating Auto Meal Plan... 🔄");
+        
+        for (String day : daysOfWeek) {
+            int randomIndex = random.nextInt(allRecipes.size());
+            Recipe randomRecipe = allRecipes.get(randomIndex);
+            
+            MealPlan newPlan = new MealPlan();
+            newPlan.setUserId(userId);
+            newPlan.setRecipeId(randomRecipe.getId());
+            newPlan.setDayOfWeek(day);
+            newPlan.setMealType("Lunch");
+            boolean isAdded = addMealPlan(newPlan); 
+            
+            if (!isAdded) {
+                allSuccess = false;
+            } else {
+                System.out.println("✔️ Added '" + randomRecipe.getRecipeName() + "' for " + day);
+            }
+        }
+        
+        return allSuccess;
+    }
 }
