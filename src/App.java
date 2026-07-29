@@ -330,76 +330,159 @@ public class App {
                 case 3:
                     System.out.println("You selected Shopping List.🛒");
                     System.out.println("\n--- 🛒 Shopping List Menu ---");
-                    System.out.println("1. Generate Shopping List");
-                    System.out.println("2. View Shopping List ");
-                    System.out.println("3. Mark Item as Purchased ");
+                    System.out.println("1. Generate Shopping List (from Weekly Plan)");
+                    System.out.println("2. View Shopping List");
+                    System.out.println("3. Mark Item as Purchased");
                     System.out.println("4. Remove Item from List");
                     System.out.println("5. 🔙 Back to Main Menu");
                     System.out.print("Please choose an option (1-5): ");
-                    System.out.println("You selected Shopping List.🛒");
+                    
                     int choiceForShoppingList = input.nextInt();
-                    input.nextLine();
+                    input.nextLine(); 
+                    
+                    ShoppingListDAO shopDAO = new ShoppingListDAO();
+                    
                     switch (choiceForShoppingList) {
                         case 1:
-                            // Generate shopping list
+                            System.out.println("\n--- 📝 Generating Shopping List ---");
+                            ShoppingListService shopService = new ShoppingListService();
+                            List<Ingredient> generatedList = shopService.generateWeeklyShoppingList(currentUserId);
+                            
+                            if (generatedList.isEmpty()) {
+                                System.out.println("Your meal plan is empty or has no ingredients! 🧐");
+                            } else {
+                                boolean isSaved = shopDAO.saveShoppingList(currentUserId, generatedList);
+                                if (isSaved) {
+                                    System.out.println("✅ Shopping list generated and saved successfully!");
+                                    System.out.println("👉 Tip: Press 2 in the menu to view your list.");
+                                } else {
+                                    System.out.println("❌ Failed to save the shopping list.");
+                                }
+                            }
                             break;
+                            
                         case 2:
-                            // View shopping list
+                            System.out.println("\n--- 📋 My Shopping List ---");
+                            List<Ingredient> myShoppingList = shopDAO.getShoppingList(currentUserId);
+                            
+                            if (myShoppingList.isEmpty()) {
+                                System.out.println("Your shopping list is empty! 🛒");
+                            } else {
+                                for (Ingredient item : myShoppingList) {
+                                    System.out.println("◽ " + item.getIngredientName() + 
+                                                       " - " + item.getAmount() + " " + item.getUnit());
+                                }
+                            }
                             break;
+                            
                         case 3:
-                            // Mark item as purchased
+                            System.out.println("\n--- ✅ Mark Item as Purchased ---");
+                            System.out.print("Enter the exact name of the ingredient you bought: ");
+                            String boughtItem = input.nextLine();
+                            
+                            shopDAO.updatePurchaseStatus(currentUserId, boughtItem, true);
                             break;
+                            
                         case 4:
-                            // Remove item from list
+                            System.out.println("\n--- 🗑️ Remove Item ---");
+                            System.out.print("Enter the exact name of the ingredient to remove: ");
+                            String itemToRemove = input.nextLine();
+                            
+                            shopDAO.deleteItemFromList(currentUserId, itemToRemove);
                             break;
+                            
                         case 5:
-                            // Back to main menu
+                            System.out.println("Returning to Main Menu... 🔙");
                             break;
                     
                         default:
+                            System.out.println("Invalid option. Please try again.");
                             break;
                     }
-                    // i will compelete this part later for shopping list
                     break;
                 case 4:
                     System.out.println("You selected Nutrition & Health.📊");
-                    
                     System.out.println("\n--- 📊 Nutrition & Health Menu ---");
-                    System.out.println("1. Add Nutrition Info to a Recipe ");
+                    System.out.println("1. Add Nutrition Info to a Recipe");
                     System.out.println("2. View Daily Nutrition Sum");
                     System.out.println("3. View Weekly Nutrition Sum");
                     System.out.println("4. 🔙 Back to Main Menu");
                     System.out.print("Please choose an option (1-4): ");
+                    
                     int choiceForNutritionHealth = input.nextInt();
                     input.nextLine();
+                    
+                    NutritionDAO nutritionDAO = new NutritionDAO();
+                    
                     switch (choiceForNutritionHealth) {
                         case 1:
-                            // Add nutrition info to a recipe
+                            System.out.println("\n--- ➕ Add Nutrition Info ---");
+                            System.out.print("Enter Recipe ID: ");
+                            int recipeId = input.nextInt();
+                            
+                            System.out.print("Enter Calories: ");
+                            double calories = input.nextDouble();
+                            
+                            System.out.print("Enter Protein (g): ");
+                            double protein = input.nextDouble();
+                            
+                            System.out.print("Enter Carbs (g): ");
+                            double carbs = input.nextDouble();
+                            
+                            System.out.print("Enter Fat (g): ");
+                            double fat = input.nextDouble();
+                            input.nextLine();
+                            
+                            Nutrition newNutrition = new Nutrition(recipeId, calories, protein, carbs, fat);
+                            boolean isSaved = nutritionDAO.saveOrUpdateNutrition(newNutrition);
+                            
+                            if (isSaved) {
+                                System.out.println("✅ Nutrition info saved successfully!");
+                            } else {
+                                System.out.println("❌ Failed to save nutrition info. Check if the Recipe ID exists.");
+                            }
                             break;
+                            
                         case 2:
-                            // View daily nutrition sum
+                            System.out.println("\n--- 📅 Daily Nutrition Sum ---");
+                            System.out.print("Enter Day of Week (e.g., Monday, Tuesday): ");
+                            String day = input.nextLine();
+                            
+                            Nutrition dailySum = nutritionDAO.getDailyNutritionSum(currentUserId, day);
+                            
+                            System.out.println("📊 Nutrition Totals for " + day + ":");
+                            System.out.println("Calories: " + dailySum.getCalories() + " kcal");
+                            System.out.println("Protein:  " + dailySum.getProtein() + " g");
+                            System.out.println("Carbs:    " + dailySum.getCarbs() + " g");
+                            System.out.println("Fat:      " + dailySum.getFat() + " g");
                             break;
+                            
                         case 3:
-                            // View weekly nutrition sum
+                            System.out.println("\n--- 📈 Weekly Nutrition Sum ---");
+                            Nutrition weeklySum = nutritionDAO.getWeeklyNutritionSum(currentUserId);
+                            
+                            System.out.println("📊 Total Nutrition for the Entire Week:");
+                            System.out.println("Calories: " + weeklySum.getCalories() + " kcal");
+                            System.out.println("Protein:  " + weeklySum.getProtein() + " g");
+                            System.out.println("Carbs:    " + weeklySum.getCarbs() + " g");
+                            System.out.println("Fat:      " + weeklySum.getFat() + " g");
                             break;
+                            
                         case 4:
-                            // Back to main menu
+                            System.out.println("Returning to Main Menu... 🔙");
                             break;
                     
                         default:
+                            System.out.println("Invalid option. Please try again.");
                             break;
                     }
-                        
-                    // i will compelete this part later for nutrition & health
                     break;
-                case 5:
+                    case 5:
                     System.out.println("Thank you for using SmartChef! Goodbye! 👋");
-                    running = false;
+                    running = false; 
                     break;
-                default:
-                    System.out.println("Invalid choice!! Please try again.");
-            }
         }
-        input.close();
-    }
+        
+    }input.close();
+}
 }

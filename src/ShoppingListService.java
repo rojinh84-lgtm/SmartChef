@@ -20,7 +20,7 @@ public class ShoppingListService {
         for (MealPlan plan : weeklyPlans) {
             int recipeId = plan.getRecipeId();
             
-            // اصلاح شد: فراخوانی متد جدید از RecipeDAO
+            
             Recipe recipe = recipeDAO.getRecipeById(recipeId); 
             
             if (recipe != null && recipe.getIngredients() != null) {

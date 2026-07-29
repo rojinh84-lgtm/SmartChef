@@ -1,6 +1,7 @@
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ShoppingListDAO {
@@ -106,5 +107,31 @@ public class ShoppingListDAO {
             System.out.println("Database error while deleting item: " + e.getMessage());
         }
         return false;
+    }
+    // method to get the shopping list for a user
+    public List<Ingredient> getShoppingList(int userId) {
+        List<Ingredient> list = new ArrayList<>();
+        
+        String query = "SELECT ingredient_name, amount, unit, is_purchased FROM ShoppingListItems WHERE user_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, userId);
+            try (java.sql.ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Ingredient ing = new Ingredient();
+                    ing.setIngredientName(rs.getString("ingredient_name"));
+                    ing.setAmount(rs.getDouble("amount"));
+                    ing.setUnit(rs.getString("unit"));
+
+                    list.add(ing);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Database error while fetching shopping list: " + e.getMessage());
+        }
+        return list;
     }
 }
