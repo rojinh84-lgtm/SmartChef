@@ -17,8 +17,13 @@ public class App {
             System.out.println("3. Exit");
             System.out.print("Choose an option: ");
             
-            int authChoice = input.nextInt();
-            input.nextLine(); 
+            int authChoice = -1;
+            try {
+                authChoice = Integer.parseInt(input.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Invalid input! Please enter a valid number.");
+                continue; //it will go back to the start of the loop to ask for input again
+            }
 
             if (authChoice == 1) {
                 System.out.print("Enter Username: ");
@@ -73,8 +78,13 @@ public class App {
             System.out.println("4. 📊 Nutrition & Health");
             System.out.println("5. ❌ Exit");
             System.out.println("\nPlease choose an option:");
-            int choice = input.nextInt();
-            input.nextLine();
+            int choice = -1;
+            try {
+                choice = Integer.parseInt(input.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Invalid input! Please enter a valid number (1 to 5).");
+                continue; //same as before
+            }
             switch(choice){
                 case 1:
                     System.out.println("You selected Recipe Management.🍳");
@@ -175,8 +185,13 @@ public class App {
                             // Update a recipe
                             System.out.println("\n--- ✏️ Update Recipe ---");
                             System.out.print("Enter the ID of the recipe you want to update (see 'View All My Recipes'): ");
-                            int updateId = input.nextInt();
-                            input.nextLine(); 
+                            int updateId = -1;
+                            try {
+                                updateId = Integer.parseInt(input.nextLine());
+                            } catch (NumberFormatException e) {
+                                System.out.println("❌ Invalid input! Please enter a valid number.");
+                                continue;
+                            }
                             
                             Recipe updatedRecipe = new Recipe();
                             updatedRecipe.setId(updateId);
@@ -212,8 +227,13 @@ public class App {
                             // Delete a recipe
                             System.out.println("\n--- 🗑️ Delete Recipe ---");
                             System.out.print("Enter the ID of the recipe you want to delete: ");
-                            int deleteId = input.nextInt();
-                            input.nextLine(); 
+                            int deleteId = -1;
+                            try {
+                                deleteId = Integer.parseInt(input.nextLine());
+                            } catch (NumberFormatException e) {
+                                System.out.println("❌ Invalid input! Please enter a valid number.");
+                                continue;
+                            }
                             System.out.print("⚠️ Are you sure you want to delete recipe ID " + deleteId + "? (yes/no): ");
                             String confirm = input.nextLine();
                             
@@ -238,7 +258,13 @@ public class App {
                             System.out.println("3. Search by Ingredient ");
                             System.out.print("Choose search type (1-3): ");
                             
-                            int searchType = input.nextInt();
+                            int searchType = -1;
+                            try {
+                                searchType = Integer.parseInt(input.nextLine());
+                            } catch (NumberFormatException e) {
+                                System.out.println("❌ Invalid input! Please enter a valid number.");
+                                continue;
+                            }
                             input.nextLine(); 
                             
                             System.out.print("Enter your keyword : ");
@@ -315,8 +341,13 @@ public class App {
                     System.out.println("4. 🔙 Back to Main Menu");
                     System.out.print("Please choose an option (1-4): ");
                     
-                    int choiceForMealPlanning = input.nextInt();
-                    input.nextLine(); 
+                    int choiceForMealPlanning =  -1;
+                    try {
+                        choiceForMealPlanning = Integer.parseInt(input.nextLine());
+                    } catch (NumberFormatException e) {
+                        System.out.println("❌ Invalid input! Please enter a valid number.");
+                        continue;
+                    } 
                     
                     switch (choiceForMealPlanning) {
                         case 1:
@@ -391,7 +422,13 @@ public class App {
                     System.out.println("5. 🔙 Back to Main Menu");
                     System.out.print("Please choose an option (1-5): ");
                     
-                    int choiceForShoppingList = input.nextInt();
+                    int choiceForShoppingList = -1;
+                    try {
+                        choiceForShoppingList = Integer.parseInt(input.nextLine());
+                    } catch (NumberFormatException e) {
+                        System.out.println("❌ Invalid input! Please enter a valid number.");
+                        continue;
+                    }
                     input.nextLine(); 
                     
                     ShoppingListDAO shopDAO = new ShoppingListDAO();
@@ -463,8 +500,13 @@ public class App {
                     System.out.println("4. 🔙 Back to Main Menu");
                     System.out.print("Please choose an option (1-4): ");
                     
-                    int choiceForNutritionHealth = input.nextInt();
-                    input.nextLine();
+                    int choiceForNutritionHealth = -1;
+                    try {
+                        choiceForNutritionHealth = Integer.parseInt(input.nextLine());
+                    } catch (NumberFormatException e) {
+                        System.out.println("❌ Invalid input! Please enter a valid number.");
+                        continue;
+                    }
                     
                     NutritionDAO nutritionDAO = new NutritionDAO();
                     
