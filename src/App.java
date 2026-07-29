@@ -4,12 +4,66 @@ import java.util.Scanner;
 public class App {
     public static void main(String[] args){
         Scanner input = new Scanner(System.in);
+        UserDAO userDAO = new UserDAO();
+        boolean isLoggedIn = false;
         System.out.println("=====================================");
         System.out.println("  👨‍🍳 Welcome to SmartChef App 👩‍🍳  ");
         System.out.println("=====================================");
         
-        int currentUserId = 1; // For demonstration, we assume the user is logged in and has an ID of 1.
+        while (!isLoggedIn) {
+            System.out.println("\n--- Authentication ---");
+            System.out.println("1. Login");
+            System.out.println("2. Register");
+            System.out.println("3. Exit");
+            System.out.print("Choose an option: ");
+            
+            int authChoice = input.nextInt();
+            input.nextLine(); 
 
+            if (authChoice == 1) {
+                System.out.print("Enter Username: ");
+                String username = input.nextLine();
+                System.out.print("Enter Password: ");
+                String password = input.nextLine();
+
+                User loggedInUser = userDAO.loginUser(username, password);
+                if (loggedInUser != null) {
+                    UserSession.login(loggedInUser);
+                    isLoggedIn = true;
+                }
+            } else if (authChoice == 2) {
+                System.out.print("Enter First Name: ");
+                String firstName = input.nextLine();
+                
+                System.out.print("Enter Last Name: ");
+                String lastName = input.nextLine();
+                
+                System.out.print("Enter Username: ");
+                String username = input.nextLine();
+                
+                System.out.print("Enter Password: ");
+                String password = input.nextLine();
+
+                User newUser = new User();
+                newUser.setFirstName(firstName);
+                newUser.setLastName(lastName);
+                newUser.setUsername(username);
+                newUser.setPassword(password);
+
+                if (userDAO.registerUser(newUser)) {
+                    System.out.println("✅ Registration successful! You can now login.");
+                }
+            } else if (authChoice == 3) {
+                System.out.println("Goodbye! 👋");
+                input.close();
+                return; 
+            } else {
+                System.out.println("Invalid option. Please try again.");
+            }
+        }
+
+        // get the id  from the current user session
+        int currentUserId = UserSession.getCurrentUserId();
         boolean running = true;
         while(running){
             System.out.println("\n--- Main Menu ---");
