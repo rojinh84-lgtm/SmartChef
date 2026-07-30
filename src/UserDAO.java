@@ -3,7 +3,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class UserDAO {
+public class UserDAO extends BaseDAO {
     
     public boolean registerUser(User user) {
         //if user does not have username or password, return false
@@ -16,7 +16,7 @@ public class UserDAO {
         String insertUserQuery = "INSERT INTO Users (first_name, last_name, username, password) VALUES (?, ?, ?, ?)";
 
         //connection to database and execute queries
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement checkStmt = conn.prepareStatement(checkUserQuery);
              PreparedStatement insertStmt = conn.prepareStatement(insertUserQuery)) {
             
@@ -47,7 +47,7 @@ public class UserDAO {
     
     String loginQuery = "SELECT * FROM Users WHERE username = ? AND password = ?";
     
-    try (Connection conn = DatabaseConnection.getConnection();
+    try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(loginQuery)) {
         
         

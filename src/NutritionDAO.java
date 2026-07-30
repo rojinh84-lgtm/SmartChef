@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
 
-public class NutritionDAO {
+public class NutritionDAO extends BaseDAO {
     
     //method to save or update nutrition information for a recipe
     public boolean saveOrUpdateNutrition(Nutrition nutrition) {
@@ -14,7 +14,7 @@ public class NutritionDAO {
                        "VALUES (?, ?, ?, ?, ?) " +
                        "ON DUPLICATE KEY UPDATE calories = ?, protein = ?, carbs = ?, fat = ?";
         
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             // values for INSERT
@@ -41,7 +41,7 @@ public class NutritionDAO {
     // متد کمکی: گرفتن اطلاعات تغذیه‌ای فقط برای یک دستورپخت خاص
     public Nutrition getNutritionByRecipeId(int recipeId) {
         String query = "SELECT * FROM NutritionInfo WHERE recipe_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             stmt.setInt(1, recipeId);

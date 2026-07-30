@@ -5,10 +5,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 // here in this class i use ai to make a transaction that will add a recipe and all its ingredients in one go. if any part of the process fails, the entire transaction will be rolled back to maintain data integrity.re
-public class RecipeDAO {
+public class RecipeDAO extends BaseDAO {
     public boolean addRecipe(Recipe recipe) {
         String insertQuery = "INSERT INTO Recipes (user_id, recipe_name, category, servings, instructions, preparation_time) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(insertQuery)){
             stmt.setInt(1, recipe.getUserId());
             stmt.setString(2, recipe.getRecipeName());
@@ -29,7 +29,7 @@ public class RecipeDAO {
         List<Recipe> recipeList = new ArrayList<>();
         String selectQuery = "SELECT * FROM Recipes WHERE user_id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(selectQuery)) {
 
             
@@ -66,7 +66,7 @@ public class RecipeDAO {
 
     Connection conn = null;
     try {
-        conn = DatabaseConnection.getConnection();
+        conn = getConnection();
         
         conn.setAutoCommit(false);
 
@@ -137,7 +137,7 @@ public boolean deleteRecipe(int recipeId) {
 
     Connection conn = null;
     try {
-        conn = DatabaseConnection.getConnection();
+        conn = getConnection();
         conn.setAutoCommit(false);
 
         // first, delete all ingredients associated with the recipe(child records)
@@ -189,7 +189,7 @@ public boolean deleteRecipe(int recipeId) {
 public boolean updateRecipe(Recipe recipe) {
     String updateQuery = "UPDATE Recipes SET recipe_name = ?, category = ?, servings = ?, instructions = ?, preparation_time = ? WHERE id = ?";
 
-    try (Connection conn = DatabaseConnection.getConnection();
+    try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(updateQuery)) {
 
         //using encapsulation to set the values for the update query
@@ -220,7 +220,7 @@ public List<Recipe> searchRecipesByName(String keyword, int userId) {
     //for searching in whole text, we use the LIKE operator in SQL, which allows us to search for a specified pattern in a column. The % symbol is a wildcard that represents zero or more characters. By placing it before and after the keyword, we can find any recipe names that contain the keyword anywhere within them.
     String searchQuery = "SELECT * FROM Recipes WHERE recipe_name LIKE ? AND user_id = ?";
 
-    try (Connection conn = DatabaseConnection.getConnection();
+    try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(searchQuery)) {
 
         //% this character is start and end of the keyword, so it will search for any recipe names that contain the keyword anywhere within them.
@@ -250,7 +250,7 @@ public List<Recipe> searchRecipesByName(String keyword, int userId) {
 public List<Recipe> searchRecipesByCategory(String categoryKeyword, int userId) {
     List<Recipe> resultList = new ArrayList<>();
     String searchQuery ="SELECT * FROM Recipes WHERE category LIKE ? AND user_id = ?";
-    try (Connection conn = DatabaseConnection.getConnection();
+    try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(searchQuery)) {
         stmt.setString(1, "%" + categoryKeyword + "%");
         stmt.setInt(2, userId);
@@ -283,7 +283,7 @@ public List<Recipe> searchRecipesByIngredient(String ingredientKeyword, int user
                           "JOIN Ingredients i ON r.id = i.recipe_id " +
                           "WHERE i.ingredient_name LIKE ? AND r.user_id = ?";
 
-    try (Connection conn = DatabaseConnection.getConnection();
+    try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(searchQuery)) {
 
         
@@ -316,7 +316,7 @@ public List<Recipe> searchRecipesByIngredient(String ingredientKeyword, int user
         String recipeQuery = "SELECT * FROM Recipes WHERE id = ?";
         String ingredientQuery = "SELECT * FROM Ingredients WHERE recipe_id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement recipeStmt = conn.prepareStatement(recipeQuery)) {
 
             recipeStmt.setInt(1, recipeId);
@@ -366,7 +366,7 @@ public List<Recipe> searchRecipesByIngredient(String ingredientKeyword, int user
         if (glutenFree) query.append("AND is_gluten_free = TRUE ");
         if (lactoseFree) query.append("AND is_lactose_free = TRUE ");
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query.toString());
              ResultSet rs = stmt.executeQuery()) {
 

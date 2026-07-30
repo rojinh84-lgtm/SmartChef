@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShoppingListDAO {
+public class ShoppingListDAO extends BaseDAO {
     
     //method to save shopping list for a user
     public boolean saveShoppingList(int userId, List<Ingredient> shoppingList) {
@@ -13,7 +13,7 @@ public class ShoppingListDAO {
         
         Connection conn = null;
         try {
-            conn = DatabaseConnection.getConnection();
+            conn = getConnection();
             //transaction management
             conn.setAutoCommit(false); 
             
@@ -65,7 +65,7 @@ public class ShoppingListDAO {
     public boolean updatePurchaseStatus(int userId, String ingredientName, boolean isPurchased) {
         String updateQuery = "UPDATE ShoppingListItems SET is_purchased = ? WHERE user_id = ? AND ingredient_name = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(updateQuery)) {
 
             stmt.setBoolean(1, isPurchased);
@@ -89,7 +89,7 @@ public class ShoppingListDAO {
     public boolean deleteItemFromList(int userId, String ingredientName) {
         String deleteQuery = "DELETE FROM ShoppingListItems WHERE user_id = ? AND ingredient_name = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(deleteQuery)) {
             stmt.setInt(1, userId);
             stmt.setString(2, ingredientName);
@@ -114,7 +114,7 @@ public class ShoppingListDAO {
         
         String query = "SELECT ingredient_name, amount, unit, is_purchased FROM ShoppingListItems WHERE user_id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, userId);

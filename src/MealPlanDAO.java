@@ -2,11 +2,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-public class MealPlanDAO {
+public class MealPlanDAO extends BaseDAO {
     public boolean addMealPlan(MealPlan mealPlan) {
         String insertQuery = "INSERT INTO MealPlans (user_id, recipe_id, day_of_week, meal_type) VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setInt(1, mealPlan.getUserId());
@@ -36,7 +36,7 @@ public class MealPlanDAO {
     public boolean deleteMealPlan(int mealPlanId, int userId) {
     String deleteQuery = "DELETE FROM MealPlans WHERE id = ? AND user_id = ?";
 
-    try (Connection conn = DatabaseConnection.getConnection();
+    try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(deleteQuery)) {
 
         stmt.setInt(1, mealPlanId);
@@ -63,7 +63,7 @@ public List<MealPlan> getWeeklyMealPlan(int userId) {
                    "WHERE mp.user_id = ? " +
                    "ORDER BY FIELD(mp.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
 
-    try (Connection conn = DatabaseConnection.getConnection();
+    try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(query)) {
 
         stmt.setInt(1, userId);

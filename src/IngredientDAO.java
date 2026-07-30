@@ -4,11 +4,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-public class  IngredientDAO {
+public class IngredientDAO extends BaseDAO {
     public boolean addIngredient(Ingredient ingredient) {
     String insertQuery = "INSERT INTO Ingredients (recipe_id, ingredient_name, amount, unit) VALUES (?, ?, ?, ?)";
     
-    try (Connection conn = DatabaseConnection.getConnection();
+    try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
         
         stmt.setInt(1, ingredient.getRecipeId());
@@ -28,7 +28,7 @@ public List<Ingredient> getIngredientsByRecipeId(int recipeId) {
     List<Ingredient> ingredientList = new ArrayList<>();//Create a list to hold the ingredients for the given recipeId
     String selectQuery = "SELECT * FROM Ingredients WHERE recipe_id = ?";
 
-    try (Connection conn = DatabaseConnection.getConnection();
+    try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(selectQuery)) {
         stmt.setInt(1, recipeId);
         
